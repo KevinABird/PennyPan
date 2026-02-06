@@ -1,0 +1,204 @@
+---
+title: "FstAnalysis"
+output: html_document
+date: "2025-02-14"
+---
+
+```{r load}
+library(SNPRelate)
+library(SeqArray)
+library(tidyverse)
+library(KRIS)
+library(gtools)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r make GDS objects, echo=FALSE}
+
+#Gene Rich Regions
+snpgdsVCF2GDS_R("Thlaspi_GBS/pennycressGBS_WGS_merged_GeneRichRegions.vcf.gz",out.fn = "Tarvense_GBS_WGS_merged_GeneRichGDS",method = "biallelic.only")
+
+
+#Gene Poor Regions
+snpgdsVCF2GDS("Thlaspi_GBS/pennycressGBS_WGS_merged_GenePoorRegions.vcf.gz",out.fn="Tarvense_GBS_WGS_merged_GenePoorGDS",method="biallelic.only")
+
+well_and_origin <- read.csv("~/Documents/Thlaspi_Pangenome/Thlaspi_GBS/well_and_origin.csv")
+well_and_origin %>% filter(Position!="") -> well_and_origin
+rbind(well_and_origin,c("Blank","H8","Blank")) -> well_and_origin
+well_and_origin[mixedorder(well_and_origin$Position),] -> well_and_origin
+
+
+
+```
+
+
+```{r, filter by Chr, echo=T}
+
+GeneRich <- snpgdsOpen("Tarvense_GBS_WGS_merged_GeneRichGDS")
+GenePoor <- snpgdsOpen("Tarvense_GBS_WGS_merged_GenePoorGDS")
+
+select_samples<-read.gdsn(index.gdsn(GeneRich, "sample.id"))
+select_samples<-select_samples[select_samples!="H08"] #remove blank sample
+pop.label<- ifelse(well_and_origin$Origin =="Armenia","Armenia","Non-Armenia")
+pop.label<-c("Non-Armenia","Armenia","Non-Armenia","Non-Armenia","Non-Armenia","Non-Armenia","Non-Armenia",pop.label)
+pop.sel<-pop.label[select_samples!="H08"]
+
+GeneRich_chr_list<-read.gdsn(index.gdsn(GeneRich, "snp.chromosome"))
+GenePoor_chr_list<-read.gdsn(index.gdsn(GenePoor, "snp.chromosome"))
+
+
+#Gene Rich
+SNP_Chr_Match<-data.frame(SNP_id=read.gdsn(index.gdsn(GeneRich, "snp.id")),Chr=read.gdsn(index.gdsn(GeneRich, "snp.chromosome")))
+
+GRchr_01_positions<-SNP_Chr_Match[SNP_Chr_Match$Chr =="Chr01",]$SNP_id
+snpgdsGetGeno(GeneRich,sample.id=select_samples, snp.id= GRchr_01_positions,with.id = T,verbose = T) -> GR_Chr1_Geno
+GR_Chr1_GMat<-GR_Chr1_Geno$genotype
+rownames(GR_Chr1_GMat)<-GR_Chr1_Geno$sample.id
+colnames(GR_Chr1_GMat)<-GR_Chr1_Geno$snp.id
+GeneRich_Chr1_Fst<-fst.hudson(GR_Chr1_GMat,idx.p1=which(pop.sel=="Armenia"),idx.p2=which(pop.sel=="Non-Armenia"))
+
+GRchr_02_positions<-SNP_Chr_Match[SNP_Chr_Match$Chr =="Chr02",]$SNP_id
+snpgdsGetGeno(GeneRich,sample.id=select_samples, snp.id= GRchr_02_positions,with.id = T,verbose = T) -> GR_Chr2_Geno
+GR_Chr2_GMat<-GR_Chr2_Geno$genotype
+rownames(GR_Chr2_GMat)<-GR_Chr2_Geno$sample.id
+colnames(GR_Chr2_GMat)<-GR_Chr2_Geno$snp.id
+GeneRich_Chr2_Fst<-fst.hudson(GR_Chr2_GMat,idx.p1=which(pop.sel=="Armenia"),idx.p2=which(pop.sel=="Non-Armenia"))
+
+GRchr_03_positions<-SNP_Chr_Match[SNP_Chr_Match$Chr =="Chr03",]$SNP_id
+snpgdsGetGeno(GeneRich,sample.id=select_samples, snp.id= GRchr_03_positions,with.id = T,verbose = T) -> GR_Chr3_Geno
+GR_Chr3_GMat<-GR_Chr3_Geno$genotype
+rownames(GR_Chr3_GMat)<-GR_Chr3_Geno$sample.id
+colnames(GR_Chr3_GMat)<-GR_Chr3_Geno$snp.id
+GeneRich_Chr3_Fst<-fst.hudson(GR_Chr3_GMat,idx.p1=which(pop.sel=="Armenia"),idx.p2=which(pop.sel=="Non-Armenia"))
+
+GRchr_04_positions<-SNP_Chr_Match[SNP_Chr_Match$Chr =="Chr04",]$SNP_id
+snpgdsGetGeno(GeneRich,sample.id=select_samples, snp.id= GRchr_04_positions,with.id = T,verbose = T) -> GR_Chr4_Geno
+GR_Chr4_GMat<-GR_Chr4_Geno$genotype
+rownames(GR_Chr4_GMat)<-GR_Chr4_Geno$sample.id
+colnames(GR_Chr4_GMat)<-GR_Chr4_Geno$snp.id
+GeneRich_Chr4_Fst<-fst.hudson(GR_Chr4_GMat,idx.p1=which(pop.sel=="Armenia"),idx.p2=which(pop.sel=="Non-Armenia"))
+
+GRchr_05_positions<-SNP_Chr_Match[SNP_Chr_Match$Chr =="Chr05",]$SNP_id
+snpgdsGetGeno(GeneRich,sample.id=select_samples, snp.id= GRchr_05_positions,with.id = T,verbose = T) -> GR_Chr5_Geno
+GR_Chr5_GMat<-GR_Chr5_Geno$genotype
+rownames(GR_Chr5_GMat)<-GR_Chr5_Geno$sample.id
+colnames(GR_Chr5_GMat)<-GR_Chr5_Geno$snp.id
+GeneRich_Chr5_Fst<-fst.hudson(GR_Chr5_GMat,idx.p1=which(pop.sel=="Armenia"),idx.p2=which(pop.sel=="Non-Armenia"))
+
+GRchr_06_positions<-SNP_Chr_Match[SNP_Chr_Match$Chr =="Chr06",]$SNP_id
+snpgdsGetGeno(GeneRich,sample.id=select_samples, snp.id= GRchr_06_positions,with.id = T,verbose = T) -> GR_Chr6_Geno
+GR_Chr6_GMat<-GR_Chr6_Geno$genotype
+rownames(GR_Chr6_GMat)<-GR_Chr6_Geno$sample.id
+colnames(GR_Chr6_GMat)<-GR_Chr6_Geno$snp.id
+GeneRich_Chr6_Fst<-fst.hudson(GR_Chr6_GMat,idx.p1=which(pop.sel=="Armenia"),idx.p2=which(pop.sel=="Non-Armenia"))
+
+GRchr_07_positions<-SNP_Chr_Match[SNP_Chr_Match$Chr =="Chr07",]$SNP_id
+snpgdsGetGeno(GeneRich,sample.id=select_samples, snp.id= GRchr_07_positions,with.id = T,verbose = T) -> GR_Chr7_Geno
+GR_Chr7_GMat<-GR_Chr7_Geno$genotype
+rownames(GR_Chr7_GMat)<-GR_Chr7_Geno$sample.id
+colnames(GR_Chr7_GMat)<-GR_Chr7_Geno$snp.id
+GeneRich_Chr7_Fst<-fst.hudson(GR_Chr7_GMat,idx.p1=which(pop.sel=="Armenia"),idx.p2=which(pop.sel=="Non-Armenia"))
+
+
+# Gene Poor
+
+SNP_Chr_Match<-data.frame(SNP_id=read.gdsn(index.gdsn(GenePoor, "snp.id")),Chr=read.gdsn(index.gdsn(GenePoor, "snp.chromosome")))
+
+GPchr_01_positions<-SNP_Chr_Match[SNP_Chr_Match$Chr =="01",]$SNP_id
+snpgdsGetGeno(GenePoor,sample.id=select_samples, snp.id= GPchr_01_positions,with.id = T,verbose = T) -> GP_Chr1_Geno
+GP_Chr1_GMat<-GP_Chr1_Geno$genotype
+rownames(GP_Chr1_GMat)<-GP_Chr1_Geno$sample.id
+colnames(GP_Chr1_GMat)<-GP_Chr1_Geno$snp.id
+GenePoor_Chr1_Fst<-fst.hudson(GP_Chr1_GMat,idx.p1=which(pop.sel=="Armenia"),idx.p2=which(pop.sel=="Non-Armenia"))
+
+GPchr_02_positions<-SNP_Chr_Match[SNP_Chr_Match$Chr =="02",]$SNP_id
+snpgdsGetGeno(GenePoor,sample.id=select_samples, snp.id= GPchr_02_positions,with.id = T,verbose = T) -> GP_Chr2_Geno
+GP_Chr2_GMat<-GP_Chr2_Geno$genotype
+rownames(GP_Chr2_GMat)<-GP_Chr2_Geno$sample.id
+colnames(GP_Chr2_GMat)<-GP_Chr2_Geno$snp.id
+GenePoor_Chr2_Fst<-fst.hudson(GP_Chr2_GMat,idx.p1=which(pop.sel=="Armenia"),idx.p2=which(pop.sel=="Non-Armenia"))
+
+GPchr_03_positions<-SNP_Chr_Match[SNP_Chr_Match$Chr =="03",]$SNP_id
+snpgdsGetGeno(GenePoor,sample.id=select_samples, snp.id= GPchr_03_positions,with.id = T,verbose = T) -> GP_Chr3_Geno
+GP_Chr3_GMat<-GP_Chr3_Geno$genotype
+rownames(GP_Chr3_GMat)<-GP_Chr3_Geno$sample.id
+colnames(GP_Chr3_GMat)<-GP_Chr3_Geno$snp.id
+GenePoor_Chr3_Fst<-fst.hudson(GP_Chr3_GMat,idx.p1=which(pop.sel=="Armenia"),idx.p2=which(pop.sel=="Non-Armenia"))
+
+GPchr_04_positions<-SNP_Chr_Match[SNP_Chr_Match$Chr =="04",]$SNP_id
+snpgdsGetGeno(GenePoor,sample.id=select_samples, snp.id= GPchr_04_positions,with.id = T,verbose = T) -> GP_Chr4_Geno
+GP_Chr4_GMat<-GP_Chr4_Geno$genotype
+rownames(GP_Chr4_GMat)<-GP_Chr4_Geno$sample.id
+colnames(GP_Chr4_GMat)<-GP_Chr4_Geno$snp.id
+GenePoor_Chr4_Fst<-fst.hudson(GP_Chr4_GMat,idx.p1=which(pop.sel=="Armenia"),idx.p2=which(pop.sel=="Non-Armenia"))
+
+GPchr_05_positions<-SNP_Chr_Match[SNP_Chr_Match$Chr =="05",]$SNP_id
+snpgdsGetGeno(GenePoor,sample.id=select_samples, snp.id= GPchr_05_positions,with.id = T,verbose = T) -> GP_Chr5_Geno
+GP_Chr5_GMat<-GP_Chr5_Geno$genotype
+rownames(GP_Chr5_GMat)<-GP_Chr5_Geno$sample.id
+colnames(GP_Chr5_GMat)<-GP_Chr5_Geno$snp.id
+GenePoor_Chr5_Fst<-fst.hudson(GP_Chr5_GMat,idx.p1=which(pop.sel=="Armenia"),idx.p2=which(pop.sel=="Non-Armenia"))
+
+GPchr_06_positions<-SNP_Chr_Match[SNP_Chr_Match$Chr =="06",]$SNP_id
+snpgdsGetGeno(GenePoor,sample.id=select_samples, snp.id= GPchr_06_positions,with.id = T,verbose = T) -> GP_Chr6_Geno
+GP_Chr6_GMat<-GP_Chr6_Geno$genotype
+rownames(GP_Chr6_GMat)<-GP_Chr6_Geno$sample.id
+colnames(GP_Chr6_GMat)<-GP_Chr6_Geno$snp.id
+GenePoor_Chr6_Fst<-fst.hudson(GP_Chr6_GMat,idx.p1=which(pop.sel=="Armenia"),idx.p2=which(pop.sel=="Non-Armenia"))
+
+GPchr_07_positions<-SNP_Chr_Match[SNP_Chr_Match$Chr =="07",]$SNP_id
+snpgdsGetGeno(GenePoor,sample.id=select_samples, snp.id= GPchr_07_positions,with.id = T,verbose = T) -> GP_Chr7_Geno
+GP_Chr7_GMat<-GP_Chr7_Geno$genotype
+rownames(GP_Chr7_GMat)<-GP_Chr7_Geno$sample.id
+colnames(GP_Chr7_GMat)<-GP_Chr7_Geno$snp.id
+GenePoor_Chr7_Fst<-fst.hudson(GP_Chr7_GMat,idx.p1=which(pop.sel=="Armenia"),idx.p2=which(pop.sel=="Non-Armenia"))
+
+
+# Combine and plot
+data.frame(Fst=c(GeneRich_Chr1_Fst,GeneRich_Chr2_Fst,GeneRich_Chr3_Fst,GeneRich_Chr4_Fst,GeneRich_Chr5_Fst,GeneRich_Chr6_Fst,GeneRich_Chr7_Fst),Chr=c("Chr1","Chr2","Chr3","Chr4","Chr5","Chr6","Chr7"),Region="Gene Rich") -> GeneRich_Fst
+
+data.frame(Fst=c(GenePoor_Chr1_Fst,GenePoor_Chr2_Fst,GenePoor_Chr3_Fst,GenePoor_Chr4_Fst,GenePoor_Chr5_Fst,GenePoor_Chr6_Fst,GenePoor_Chr7_Fst),Chr=c("Chr1","Chr2","Chr3","Chr4","Chr5","Chr6","Chr7"),Region="Gene Poor") -> GenePoor_Fst
+
+rbind(GeneRich_Fst,GenePoor_Fst) -> Combined_Fst
+
+ggplot(data=Combined_Fst,aes(x=Region,y=Fst)) + geom_boxplot(outliers = F) + geom_point(aes(colour=Chr)) + theme_bw()
+```
+
+```{r PCA}
+#Sanity check PCAs
+
+## Gene Rich
+GeneRich_Chr1_PCA<-snpgdsPCA(GeneRich,sample.id=select_samples, snp.id= GRchr_01_positions, autosome.only = F)
+
+GeneRich_Chr2_PCA<-snpgdsPCA(GeneRich,sample.id=select_samples, snp.id= GRchr_02_positions, autosome.only = F)
+
+GeneRich_Chr3_PCA<-snpgdsPCA(GeneRich,sample.id=select_samples, snp.id= GRchr_03_positions, autosome.only = F)
+
+GeneRich_Chr4_PCA<-snpgdsPCA(GeneRich,sample.id=select_samples, snp.id= GRchr_04_positions, autosome.only = F)
+
+GeneRich_Chr5_PCA<-snpgdsPCA(GeneRich,sample.id=select_samples, snp.id= GRchr_05_positions, autosome.only = F)
+
+GeneRich_Chr6_PCA<-snpgdsPCA(GeneRich,sample.id=select_samples, snp.id= GRchr_06_positions, autosome.only = F)
+
+GeneRich_Chr7_PCA<-snpgdsPCA(GeneRich,sample.id=select_samples, snp.id= GRchr_07_positions, autosome.only = F)
+
+
+## Gene Poor
+
+GenePoor_Chr1_PCA<-snpgdsPCA(GenePoor,sample.id=select_samples, snp.id= GPchr_01_positions, autosome.only = F)
+
+GenePoor_Chr2_PCA<-snpgdsPCA(GenePoor,sample.id=select_samples, snp.id= GPchr_02_positions, autosome.only = F)
+
+GenePoor_Chr3_PCA<-snpgdsPCA(GenePoor,sample.id=select_samples, snp.id= GPchr_03_positions, autosome.only = F)
+
+GenePoor_Chr4_PCA<-snpgdsPCA(GenePoor,sample.id=select_samples, snp.id= GPchr_04_positions, autosome.only = F)
+
+GenePoor_Chr5_PCA<-snpgdsPCA(GenePoor,sample.id=select_samples, snp.id= GPchr_05_positions, autosome.only = F)
+
+GenePoor_Chr6_PCA<-snpgdsPCA(GenePoor,sample.id=select_samples, snp.id= GPchr_06_positions, autosome.only = F)
+
+GenePoor_Chr7_PCA<-snpgdsPCA(GenePoor,sample.id=select_samples, snp.id= GPchr_07_positions, autosome.only = F)
+```
