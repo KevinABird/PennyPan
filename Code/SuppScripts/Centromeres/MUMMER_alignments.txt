@@ -1,0 +1,20 @@
+
+#extract centromere sections 
+
+Prep_alignments.R
+
+#make nucmer alignments
+
+    cd ~/centromeres/MUMMER
+
+    conda activate MUMMER
+
+
+
+for genome in AK34W Ames32873 LorettoMN MN106 MN134 PI650286 Tibet33
+do
+for chr in Chr01 Chr02 Chr03 Chr04 Chr05 Chr06 Chr07
+do
+nucmer --nosimplify TRASH_${genome}${chr}.fasta TRASH_${genome}${chr}.fasta -p TRASH_${genome}${chr}_self
+done
+done &

@@ -1,0 +1,51 @@
+
+hmmer version 3.4
+seqtk version 1.2
+bedops 2.4.41
+
+conda activate hmmer  
+
+# 1. Conduct hmmer searches for NLR domains
+
+hmmsearch PF00931.hmm ~/genomes/TarvensevarAK34W/Tarvensevar_AK34W_873_v1.1.protein.fa.gz > AK34W_NLR.out &
+hmmsearch PF00931.hmm ~/genomes/TarvensevarMN106/Tarvensevar_MN106_872_v4.1.protein.fa.gz > MN106_NLR.out &
+hmmsearch PF00931.hmm ~/genomes/TarvensevarMN134/Tarvensevar_MN134_877_v1.1.protein.fa.gz > MN134_NLR.out &
+hmmsearch PF00931.hmm ~/genomes/TarvensevarPI650286/Tarvensevar_PI650286_878_v1.1.protein.fa.gz > PI650286_NLR.out &
+hmmsearch PF00931.hmm ~/genomes/TarvensevarAmes32873/Tarvensevar_Ames32873_875_v1.1.protein.fa.gz > Ames_NLR.out &
+hmmsearch PF00931.hmm ~/genomes/TarvensevarTibet33/Tarvensevar_Tibet33_879_v1.1.protein.fa.gz > Tibet_NLR.out &
+hmmsearch PF00931.hmm ~/genomes/TarvensevarLorettoMN/Tarvensevar_LorettoMN_876_v1.1.protein.fa.gz > Loretto_NLR.out &
+
+hmmsearch PF00931.hmm ~/genomes/TAIR11/Athaliana_447_Araport11.protein.fa.gz > TAIR_NLR.out &
+hmmsearch PF00931.hmm ~/genomes/B_rapa/Brapassp_trilocularisR500_795_v2.1.protein.fa.gz > B_rapa_NLR.out &
+hmmsearch PF00931.hmm ~/genomes/A_lyrata/Alyrata_384_v2.1.protein.fa.gz > A_lyrata_NLR.out &
+
+
+# 2. Filter by e value and extract seqnames from hmmer output with ~Full_NLR_analysis_code_20250429Final.R 
+
+# 3. Extract protein sequences from protein fasta
+for seqname in  AK34W MN106 MN134 PI650286 Ames Loretto Tibet
+do
+echo $seqname
+seqtk subseq ~/genomes/Tarvensevar${seqname}*/Tarvensevar_${seqname}*.protein.fa.gz ${seqname}_seqnames.txt > ${seqname}_hit_protein_seqs.txt 
+done
+
+seqtk subseq ~/genomes/TAIR11/Athaliana_447_Araport11.protein.fa.gz TAIR_seqnames.txt > TAIR_hit_protein_seqs.txt 
+seqtk subseq ~/genomes/B_rapa/Brapassp_trilocularisR500_795_v2.1.protein.fa.gz B_rapa_seqnames.txt > B_rapa_hit_protein_seqs.txt 
+seqtk subseq ~/genomes/A_lyrata/Alyrata_384_v2.1.protein.fa.gz A_lyrata_seqnames.txt > A_lyrata_hit_protein_seqs.txt 
+
+
+# 4. Batch search: upload "~hit_protein_seqs.txt" to https://www.ncbi.nlm.nih.gov/Structure/bwrpsb/bwrpsb.cgi, search, download full output to "BLAST~full_hitdata.txt"
+
+
+# 5. convert gffs to bed files
+for seqname in  AK34W MN106 MN134 PI650286 Ames Loretto Tibet
+do
+tail -n +2 ${seqname}NLR_hits.gff > tmp_${seqname}NLR_hits.gff
+gff2bed < tmp_${seqname}NLR_hits.gff > ${seqname}NLR_hits.gff3.bed
+rm tmp_${seqname}NLR_hits.gff
+done
+
+
+tail -n +2 TAIRNLR_hits.gff > tmp_TAIR_NLR_hits.gff
+gff2bed < tmp_TAIR_NLR_hits.gff > TAIRNLR_hits.gff3.bed
+rm tmp_${seqname}NLR_hits.gff
