@@ -12,10 +12,6 @@ library(KRIS)
 library(gtools)
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
 ```{r make GDS objects, echo=FALSE}
 
 #Gene Rich Regions
