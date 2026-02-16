@@ -15,11 +15,11 @@ library(gtools)
 ```{r make GDS objects, echo=FALSE}
 
 #Gene Rich Regions
-snpgdsVCF2GDS_R("Thlaspi_GBS/pennycressGBS_WGS_merged_GeneRichRegions.vcf.gz",out.fn = "Tarvense_GBS_WGS_merged_GeneRichGDS",method = "biallelic.only")
+#snpgdsVCF2GDS_R("Thlaspi_GBS/pennycressGBS_WGS_merged_GeneRichRegions.vcf.gz",out.fn = "Tarvense_GBS_WGS_merged_GeneRichGDS",method = "biallelic.only")
 
 
 #Gene Poor Regions
-snpgdsVCF2GDS("Thlaspi_GBS/pennycressGBS_WGS_merged_GenePoorRegions.vcf.gz",out.fn="Tarvense_GBS_WGS_merged_GenePoorGDS",method="biallelic.only")
+#snpgdsVCF2GDS("Thlaspi_GBS/pennycressGBS_WGS_merged_GenePoorRegions.vcf.gz",out.fn="Tarvense_GBS_WGS_merged_GenePoorGDS",method="biallelic.only")
 
 well_and_origin <- read.csv("~/Documents/Thlaspi_Pangenome/Thlaspi_GBS/well_and_origin.csv")
 well_and_origin %>% filter(Position!="") -> well_and_origin
