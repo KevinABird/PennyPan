@@ -1,0 +1,19 @@
+
+##### Combine GBS VCF with sites from polishing libraries #####
+
+# Identify positions from GBS VCF
+bcftools query -f '%CHROM\t%POS\n' /home/cmclaughlin_scratch_f12/Pennycress/pennycressGBS_filtered_20241125.vcf.gz > pennycress_GBS_sites_list.txt 
+
+# Extract positions from WGS VCF
+bcftools view -R pennycress_GBS_sites_list.txt variant_calls/depth_filtered_calls_invar_20241121.vcf.gz -v snps -Oz -o pennycress_GBS_sites_from_WGS_polishing_libraries_invar_20241125.vcf.gz 
+
+# Identify positions only in WGS VCF
+bcftools query -f '%CHROM\t%POS\n' pennycress_GBS_sites_from_WGS_polishing_libraries_invar_20241125.vcf.gz > pennycress_WGS_sites_list.txt
+
+# Extract WGS positions from GBS VCF
+bcftools view -R pennycress_WGS_sites_list.txt pennycressGBS_filtered_20241125.vcf.gz -v snps -Oz -o pennycress_WGS_sites_from_GBS_calls.vcf.gz &
+
+# Make a combined vcf
+
+bcftools merge pennycress_GBS_sites_from_WGS_polishing_libraries_invar_20241125.vcf.gz pennycress_WGS_sites_from_GBS_calls.vcf.gz -Oz -o small_set_GBS_and_WGS_pennycress_SNPs.vcf.gz
+#combine only the 165000 shared sites
